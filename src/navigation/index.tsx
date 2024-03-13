@@ -4,14 +4,38 @@ import {Dashboard, Login, SignUp} from '../container';
 import {NavScreenTags} from '../common/constants/navScreenTags';
 import React from 'react';
 import {navigationRef} from '../common/utils/navigatorUtils';
-import {Button} from 'react-native';
+import {Alert, Button} from 'react-native';
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerRight: () => <Button title="Logout" onPress={() => {}} />,
+        headerRight: () => (
+          <Button
+            title="Logout"
+            onPress={() =>
+              Alert.alert(
+                'Logout',
+                'Are you sure to logout',
+                [
+                  {
+                    text: 'Yes',
+                    onPress: () => console.log('Yes pressed'),
+                  },
+                  {
+                    text: 'No',
+                    onPress: () => console.log('No Pressed'),
+                    style: 'cancel',
+                  },
+                ],
+                {
+                  cancelable: false,
+                },
+              )
+            }
+          />
+        ),
       }}>
       <Stack.Screen
         name={NavScreenTags.DASHBOARD_SCREEN}
