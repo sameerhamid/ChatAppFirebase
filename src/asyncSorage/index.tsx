@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export const keys = {
+  uuid: 'uuid',
+};
+
 export default class LocalStorageUtils {
   static setItem(key: string, value: Object): Promise<void> {
     return AsyncStorage.setItem(key, JSON.stringify(value));

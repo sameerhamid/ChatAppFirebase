@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 
 import {color, globalStyle} from '../../styleHelper';
 import Logo from '../../common/components/logo';
@@ -17,8 +17,19 @@ import {scaleSizeWidth} from '../../common/utils/scaleSheetUtils';
 import RoundCornerButton from '../../common/components/CustomButton/roundCornerButton';
 import {navigate} from '../../common/utils/navigatorUtils';
 import {NavScreenTags} from '../../common/constants/navScreenTags';
+import {Store} from '../../common/context/store';
+import {LOADING_START, LOADING_STOP} from '../../common/context/actions/types';
+import signInWithEmailAndPassword from '../../network/login';
+import createUserWithEmailAndPassword from '../../network/signup';
+import {AddUser} from '../../network';
 
+import auth from '@react-native-firebase/auth';
+import LocalStorageUtils, {keys} from '../../asyncSorage';
+import {setUniqueValue} from '../../common/constants';
 const SignUp = () => {
+  const globalState = useContext(Store);
+  //@ts-ignore
+  const {dispatchLoaderAction} = globalState;
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPassowrdError] = useState(false);
@@ -55,7 +66,40 @@ const SignUp = () => {
       if (password !== confirmPassowrd) {
         Alert.alert('Password does not match');
       } else {
-        Alert.alert(JSON.stringify(credentials));
+        dispatchLoaderAction({
+          type: LOADING_START,
+        });
+
+        createUserWithEmailAndPassword(email, password)
+          .then(() => {
+            let uid = auth().currentUser?.uid;
+            let profileImage = '';
+            //@ts-ignore
+            AddUser(name, email, uid, profileImage)
+              .then(() => {
+                //@ts-ignore
+                LocalStorageUtils.setItem(keys.uuid, uid);
+                //@ts-ignore
+                setUniqueValue(uid);
+                dispatchLoaderAction({
+                  type: LOADING_STOP,
+                });
+                navigate(NavScreenTags.DASHBOARD_SCREEN);
+              })
+              .catch(error => {
+                console.log(`Error create user>> ${JSON.stringify(error)}`);
+                dispatchLoaderAction({
+                  type: LOADING_STOP,
+                });
+              });
+          })
+          .catch(error => {
+            console.log(`Error create user>> ${JSON.stringify(error)}`);
+            dispatchLoaderAction({
+              type: LOADING_STOP,
+            });
+          });
+
         setCredentials({
           ...credentials,
           name: '',

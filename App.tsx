@@ -17,9 +17,17 @@ import {
   View,
 } from 'react-native';
 import NavContainer from './src/navigation';
+import {StoreProvider} from './src/common/context/store';
+import {Loader} from './src/common/context/reducers';
+import ActivityIndc from './src/common/components/ActivityIndc';
 
 function App(): React.JSX.Element {
-  return <NavContainer />;
+  return (
+    <StoreProvider>
+      <NavContainer />
+      <ActivityIndc />
+    </StoreProvider>
+  );
 }
 
 const styles = StyleSheet.create({

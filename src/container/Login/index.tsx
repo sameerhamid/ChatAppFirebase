@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 
 import {color, globalStyle} from '../../styleHelper';
 import Logo from '../../common/components/logo';
@@ -17,8 +17,13 @@ import {scaleSizeWidth} from '../../common/utils/scaleSheetUtils';
 import RoundCornerButton from '../../common/components/CustomButton/roundCornerButton';
 import {navigate} from '../../common/utils/navigatorUtils';
 import {NavScreenTags} from '../../common/constants/navScreenTags';
+import {Store} from '../../common/context/store';
+import {LOADING_START, LOADING_STOP} from '../../common/context/actions/types';
 
 const Login = () => {
+  const globalState = useContext(Store);
+  //@ts-ignore
+  const {dispatchLoaderAction} = globalState;
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [emailValidationError, setEmailValidationError] = useState(false);
@@ -41,7 +46,15 @@ const Login = () => {
     } else if (password === null || password === '' || password === undefined) {
       setPasswordError(true);
     } else {
-      Alert.alert(JSON.stringify(credentials));
+      dispatchLoaderAction({
+        type: LOADING_START,
+      });
+
+      setTimeout(() => {
+        dispatchLoaderAction({
+          type: LOADING_STOP,
+        });
+      }, 1000);
     }
   };
 
